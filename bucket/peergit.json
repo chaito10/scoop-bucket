@@ -1,0 +1,13 @@
+{
+    "version": "beta",
+    "description": "Minimal decentralized peer-to-peer Git collaboration tool",
+    "homepage": "https://github.com/chaito10/peergit",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/chaito10/peergit/releases/download/Beta/peergit-windows-x86_64.zip",
+            "hash": "sha256:24f2d344c58bc6a19c53367e39af4df4bf78924ab91210b2edb7630f8dd2ed28"
+        }
+    },
+    "bin": "peergit.exe"
+}
