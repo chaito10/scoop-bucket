@@ -1,0 +1,23 @@
+{
+    "version": "0.1.0",
+    "description": "OmniGen - content generation tool with LLM backends",
+    "homepage": "https://github.com/chaito10/omniGen",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/chaito10/omniGen/releases/download/v0.1.0/omnigen-windows-x86_64.zip",
+            "hash": "sha256:a21941bf39a8a7b720b02eddfa6ec342bc54a6edf7aa70c90572e17adf5d43a8"
+        }
+    },
+    "bin": "omnigen.exe",
+    "checkver": {
+        "github": "https://github.com/chaito10/omniGen"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/chaito10/omniGen/releases/download/v$version/omnigen-windows-x86_64.zip"
+            }
+        }
+    }
+}

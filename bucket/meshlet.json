@@ -1,13 +1,23 @@
 {
-    "version": "alpha",
-    "description": "Minimal, hackable, single-binary P2P chat with bot and LLM support. ",
+    "version": "0.1.0",
+    "description": "Minimal, hackable, single-binary P2P chat with bot and LLM support.",
     "homepage": "https://github.com/chaito10/meshlet",
     "license": "PeerGit Non-Commercial License v1.0",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/chaito10/meshlet/releases/download/alpha/meshlet-windows-x86_64.zip",
-            "hash": "sha256:cee3ccbcbb3571b098a721bbacc4590517f004836c2730df795a0c0dbdb7408f"
+            "url": "https://github.com/chaito10/meshlet/releases/download/v0.1.0/meshlet-windows-x86_64.zip",
+            "hash": "sha256:164cbc2b1a7cc527663619deffac4be0e247e67fabd499982629ec77b1d481c3"
         }
     },
-    "bin": "meshlet.exe"
+    "bin": "meshlet.exe",
+    "checkver": {
+        "github": "https://github.com/chaito10/meshlet"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/chaito10/meshlet/releases/download/v$version/meshlet-windows-x86_64.zip"
+            }
+        }
+    }
 }
