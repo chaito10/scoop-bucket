@@ -1,12 +1,12 @@
 {
-    "version": "0.1.0",
+    "version": "v0.1.2",
     "description": "P2P transport, discovery, identity and collaboration layer for Fossil repositories",
     "homepage": "https://github.com/chaito10/peergit",
     "license": "SEE LICENSE IN LICENSE.md",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/chaito10/peergit/releases/download/v0.1.0/peergit-v0.1.0-x86_64-pc-windows-msvc.zip",
-            "hash": "sha256:9ce2519cd8180e0ff31a29603339b3f60a4046a5dacbf3ff3514764884d3b6b4"
+            "url": "https://github.com/chaito10/peergit/releases/download/v0.1.2/peergit-v0.1.2-x86_64-pc-windows-msvc.zip",
+            "hash": "sha256:181b1ddf7b07efc895f745f6c1b4f0fea1cb9318bb00f3b391a51906f4dd14f0"
         }
     },
     "bin": "peergit.exe"
