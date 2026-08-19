@@ -1,12 +1,12 @@
 {
-    "version": "beta",
-    "description": "Minimal decentralized peer-to-peer Git collaboration tool",
+    "version": "0.1.0",
+    "description": "P2P transport, discovery, identity and collaboration layer for Fossil repositories",
     "homepage": "https://github.com/chaito10/peergit",
-    "license": "MIT",
+    "license": "SEE LICENSE IN LICENSE.md",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/chaito10/peergit/releases/download/Beta/peergit-windows-x86_64.zip",
-            "hash": "sha256:24f2d344c58bc6a19c53367e39af4df4bf78924ab91210b2edb7630f8dd2ed28"
+            "url": "https://github.com/chaito10/peergit/releases/download/v0.1.0/peergit-v0.1.0-x86_64-pc-windows-msvc.zip",
+            "hash": "sha256:0b60cc03594c68e8a85f6a944c0f05a0e02913b46744fc3da8ca4f9c3f94187e"
         }
     },
     "bin": "peergit.exe"
