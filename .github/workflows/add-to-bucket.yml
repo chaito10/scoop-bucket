@@ -87,14 +87,22 @@ jobs:
             "description": "$NAME",
             "homepage": "https://github.com/$OWNER/$REPO",
             "license": "MIT",
-            "url": "$URL",
-            "hash": "$HASH",
+            "architecture": {
+              "64bit": {
+                "url": "$URL",
+                "hash": "sha256:$HASH"
+              }
+            },
             "bin": "$APP_NAME.exe",
             "checkver": {
               "github": "https://github.com/$OWNER/$REPO"
             },
             "autoupdate": {
-              "url": "https://github.com/$OWNER/$REPO/releases/download/\$version/\$basename"
+              "architecture": {
+                "64bit": {
+                  "url": "https://github.com/$OWNER/$REPO/releases/download/\$version/\$basename"
+                }
+              }
             }
           }
           EOF
