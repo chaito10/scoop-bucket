@@ -6,7 +6,7 @@
     "architecture": {
         "64bit": {
             "url": "https://github.com/chaito10/peergit/releases/download/v0.1.0/peergit-v0.1.0-x86_64-pc-windows-msvc.zip",
-            "hash": "sha256:0b60cc03594c68e8a85f6a944c0f05a0e02913b46744fc3da8ca4f9c3f94187e"
+            "hash": "sha256:b98c10ba40fbc9e79fe988c326e2e4e9a65327afe9c61c4eb0588d0a4f916405"
         }
     },
     "bin": "peergit.exe"
