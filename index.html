@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scoop Bucket Add</title>
+<style>
+  :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --green: #3fb950; --red: #f85149; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .container { width: 100%; max-width: 520px; }
+  h1 { font-size: 1.5rem; margin-bottom: .25rem; }
+  .subtitle { color: var(--muted); font-size: .875rem; margin-bottom: 1.5rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; }
+  label { display: block; font-size: .875rem; font-weight: 600; margin-bottom: .375rem; }
+  input { width: 100%; padding: .5rem .75rem; font-size: .875rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; outline: none; }
+  input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,.15); }
+  .field { margin-bottom: 1rem; }
+  .hint { color: var(--muted); font-size: .75rem; margin-top: .25rem; }
+  button { width: 100%; padding: .6rem; font-size: .875rem; font-weight: 600; color: #fff; background: var(--green); border: none; border-radius: 6px; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .status { margin-top: 1rem; padding: .75rem; border-radius: 6px; font-size: .8rem; display: none; word-break: break-all; }
+  .status.ok { display: block; background: rgba(63,185,80,.12); border: 1px solid var(--green); color: var(--green); }
+  .status.err { display: block; background: rgba(248,81,73,.12); border: 1px solid var(--red); color: var(--red); }
+  .repo-preview { color: var(--accent); font-family: monospace; }
+  .footer { text-align: center; margin-top: 1rem; font-size: .75rem; color: var(--muted); }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Scoop Bucket Add</h1>
+  <p class="subtitle">Add a GitHub release to a Scoop bucket</p>
+  <div class="card">
+    <form id="form">
+      <div class="field">
+        <label for="owner">Bucket Owner / Repo</label>
+        <input id="owner" placeholder="chaito10/scoop-bucket" required>
+        <div class="hint">GitHub repository that hosts the Scoop bucket</div>
+      </div>
+      <div class="field">
+        <label for="repo-url">GitHub Repo URL</label>
+        <input id="repo-url" placeholder="https://github.com/owner/repo" required>
+        <div class="hint" id="preview"></div>
+      </div>
+      <div class="field">
+        <label for="token">Personal Access Token</label>
+        <input id="token" type="password" placeholder="ghp_xxxx" required>
+        <div class="hint">Needs <code>repo</code> scope to trigger workflows</div>
+      </div>
+      <button type="submit" id="btn">Add to Bucket</button>
+    </form>
+    <div id="status" class="status"></div>
+  </div>
+  <div class="footer">Workflow triggered via <a href="https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#repository_dispatch" target="_blank">repository_dispatch</a></div>
+</div>
+
+<script>
+const form = document.getElementById('form');
+const btn = document.getElementById('btn');
+const statusEl = document.getElementById('status');
+const repoUrlInput = document.getElementById('repo-url');
+const preview = document.getElementById('preview');
+
+repoUrlInput.addEventListener('input', () => {
+  const m = repoUrlInput.value.match(/github\.com\/([^/]+)\/([^/]+)/);
+  if (m) preview.innerHTML = 'Will add <span class="repo-preview">' + m[1] + '/' + m[2] + '</span>';
+  else preview.textContent = '';
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  statusEl.className = 'status';
+  statusEl.style.display = 'none';
+
+  const ownerRepo = document.getElementById('owner').value.trim();
+  const repoUrl = repoUrlInput.value.trim();
+  const token = document.getElementById('token').value.trim();
+
+  const m = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
+  if (!m) { setStatus('err', 'Invalid GitHub URL'); return; }
+  const [, targetOwner, targetRepo] = m;
+
+  btn.disabled = true;
+  btn.textContent = 'Triggering workflow...';
+
+  try {
+    const res = await fetch('https://api.github.com/repos/' + ownerRepo + '/dispatches', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        event_type: 'add-to-bucket',
+        client_payload: { owner: targetOwner, repo: targetRepo }
+      })
+    });
+
+    if (res.status === 204) {
+      setStatus('ok', 'Workflow triggered for ' + targetOwner + '/' + targetRepo + '! Check the Actions tab.');
+    } else {
+      const data = await res.json();
+      setStatus('err', 'Error ' + res.status + ': ' + (data.message || 'Unknown error'));
+    }
+  } catch (err) {
+    setStatus('err', 'Network error: ' + err.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Add to Bucket';
+});
+
+function setStatus(type, msg) {
+  statusEl.className = 'status ' + type;
+  statusEl.textContent = msg;
+}
+</script>
+</body>
+</html>

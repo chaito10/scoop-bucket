@@ -1,0 +1,122 @@
+name: Add to Scoop Bucket
+
+on:
+  repository_dispatch:
+    types: [add-to-bucket]
+  workflow_dispatch:
+    inputs:
+      owner:
+        description: 'Target repo owner'
+        required: true
+      repo:
+        description: 'Target repo name'
+        required: true
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve inputs
+        id: ctx
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "owner=${{ github.event.client_payload.owner }}" >> "$GITHUB_OUTPUT"
+            echo "repo=${{ github.event.client_payload.repo }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "owner=${{ inputs.owner }}" >> "$GITHUB_OUTPUT"
+            echo "repo=${{ inputs.repo }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get latest release
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OWNER="${{ steps.ctx.outputs.owner }}"
+          REPO="${{ steps.ctx.outputs.repo }}"
+
+          RELEASE_JSON=$(gh api "repos/$OWNER/$REPO/releases/latest")
+          TAG=$(echo "$RELEASE_JSON" | jq -r '.tag_name')
+          NAME=$(echo "$RELEASE_JSON" | jq -r '.name // .tag_name')
+
+          # Find windows zip asset
+          WIN_ASSET=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name | test("windows.*\\.zip$"; "i")) | .browser_download_url' | head -1)
+
+          if [ -z "$WIN_ASSET" ]; then
+            # Fallback: try any zip
+            WIN_ASSET=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url' | head -1)
+          fi
+
+          if [ -z "$WIN_ASSET" ]; then
+            echo "::error::No .zip asset found for $OWNER/$REPO release $TAG"
+            exit 1
+          fi
+
+          HASH_URL=$(echo "$WIN_ASSET" | sed 's/\.zip$/.zip.sha256/')
+          HASH=$(curl -sL "$HASH_URL" 2>/dev/null | awk '{print $1}')
+
+          if [ -z "$HASH" ]; then
+            HASH=$(curl -sL "$WIN_ASSET" | sha256sum | awk '{print $1}')
+          fi
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "url=$WIN_ASSET" >> "$GITHUB_OUTPUT"
+          echo "hash=$HASH" >> "$GITHUB_OUTPUT"
+
+      - name: Generate manifest
+        env:
+          OWNER: ${{ steps.ctx.outputs.owner }}
+          REPO: ${{ steps.ctx.outputs.repo }}
+          TAG: ${{ steps.release.outputs.tag }}
+          NAME: ${{ steps.release.outputs.name }}
+          URL: ${{ steps.release.outputs.url }}
+          HASH: ${{ steps.release.outputs.hash }}
+        run: |
+          APP_NAME=$(echo "$REPO" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/-/g')
+          MANIFEST_DIR="bucket"
+          mkdir -p "$MANIFEST_DIR"
+
+          cat > "$MANIFEST_DIR/$APP_NAME.json" <<EOF
+          {
+            "version": "$TAG",
+            "description": "$NAME",
+            "homepage": "https://github.com/$OWNER/$REPO",
+            "license": "MIT",
+            "url": "$URL",
+            "hash": "$HASH",
+            "bin": "$APP_NAME.exe",
+            "checkver": {
+              "github": "https://github.com/$OWNER/$REPO"
+            },
+            "autoupdate": {
+              "url": "https://github.com/$OWNER/$REPO/releases/download/\$version/\$basename"
+            }
+          }
+          EOF
+
+          # Strip leading whitespace from heredoc indentation
+          sed -i 's/^          //' "$MANIFEST_DIR/$APP_NAME.json"
+
+          echo "Generated manifest:"
+          cat "$MANIFEST_DIR/$APP_NAME.json"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add bucket/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            OWNER="${{ steps.ctx.outputs.owner }}"
+            REPO="${{ steps.ctx.outputs.repo }}"
+            TAG="${{ steps.release.outputs.tag }}"
+            git commit -m "add: $OWNER/$REPO@$TAG"
+            git push
+          fi
