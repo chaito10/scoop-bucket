@@ -1,0 +1,23 @@
+{
+    "version": "0.1.0",
+    "description": "CLI tool to organize, rename, tag, deduplicate, and archive files",
+    "homepage": "https://github.com/chaito10/fileOps",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/chaito10/fileOps/releases/download/v0.1.0/fileops-v0.1.0-win64.zip",
+            "hash": "sha256:a219a17f925adaf07a6e66180379f65575504656d88cb8a10f0cf4c8c5bf842d"
+        }
+    },
+    "bin": "fileops.exe",
+    "checkver": {
+        "github": "https://github.com/chaito10/fileOps"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/chaito10/fileOps/releases/download/v$version/fileops-v$version-win64.zip"
+            }
+        }
+    }
+}
