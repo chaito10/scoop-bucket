@@ -1,22 +1,22 @@
 {
-    "version": "0.1.0",
+    "version": "1.0.0",
     "description": "GLG - Granular License Generator",
     "homepage": "https://github.com/chaito10/Licra",
-    "license": "PeerGit Non-Commercial License v1.0",
+    "license": "MIT OR Apache-2.0",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/chaito10/Licra/releases/download/v0.1.0/licra-windows-x86_64.zip",
-            "hash": "sha256:166137896991f3d18171f6957482fdc05607941c1072e273246dc004f3a8662a"
+            "url": "https://github.com/chaito10/Licra/releases/download/v1.0.0/glg-v1.0.0-win64.zip",
+            "hash": "sha256:99c995c3954b3b7b94ce5165c8871ad6995809f4956d81aad093666e3bc55003"
         }
     },
-    "bin": "licra.exe",
+    "bin": "glg.exe",
     "checkver": {
         "github": "https://github.com/chaito10/Licra"
     },
     "autoupdate": {
         "architecture": {
             "64bit": {
-                "url": "https://github.com/chaito10/Licra/releases/download/v$version/licra-windows-x86_64.zip"
+                "url": "https://github.com/chaito10/Licra/releases/download/v$version/glg-v$version-win64.zip"
             }
         }
     }
